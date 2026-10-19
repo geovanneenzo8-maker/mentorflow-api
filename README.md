@@ -147,13 +147,3 @@ O projeto conta com testes de integração de ponta a ponta validando filtros, c
 | `GET` | `/api/v1/dashboard/metrics` | Retorna GMV, receita da plataforma e extrato do Ledger |
 
 ---
-
-## 💡 Guia para Entrevista Técnica (Como apresentar este projeto)
-
-Durante entrevistas técnicas, destaque estes pontos:
-1. **"Como você evitou que dois alunos reservassem o mesmo horário ao mesmo tempo?"**
-   - *"Usei `@Lock(LockModeType.PESSIMISTIC_WRITE)` na busca do Mentor dentro da transação de criação do agendamento, combinado com a fórmula matemática de interseção de intervalos (`startTime < novoFim AND endTime > novoInicio`). Assim, duas requisições concorrentes para o mesmo mentor são serializadas no banco de dados e a segunda recebe `409 Conflict`."*
-2. **"Como você lidou com valores monetários e divisão de pagamentos?"**
-   - *"Nunca usei `double` ou `float` para dinheiro. Usei `BigDecimal` com escala 2 e `RoundingMode.HALF_UP`. Além disso, calculei a taxa da plataforma (15%) e obtive o valor do mentor por subtração (`totalAmount.subtract(platformFee)`), garantindo que a soma das partes seja 100% exata aos centavos, registrando tudo em uma tabela imutável `ledger_transactions`."*
-3. **"Como você evitou o problema de N+1 Queries no Hibernate?"**
-   - *"Desativei o anti-pattern `spring.jpa.open-in-view=false` e criei queries JPQL explícitas com `JOIN FETCH b.mentor JOIN FETCH b.mentee` no `BookingRepository`, buscando tudo em um único `SELECT`."*
