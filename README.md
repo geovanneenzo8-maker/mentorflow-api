@@ -1,5 +1,6 @@
 # MentorFlow API — Marketplace & Motor de Agendamento de Mentorias Tech
 
+![Java CI](https://github.com/geovanneenzo8-maker/mentorflow-api/actions/workflows/ci.yml/badge.svg)
 ![Java 21](https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Spring Data JPA](https://img.shields.io/badge/JPA%20%2F%20Hibernate-6.6-59666C?style=for-the-badge&logo=hibernate&logoColor=white)

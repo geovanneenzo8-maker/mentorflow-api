@@ -26,8 +26,8 @@ public class OpenApiConfig {
                                 - **Tratamento de Erros Padronizado:** Respostas estruturadas no padrão **RFC 7807 (Problem Details for HTTP APIs)**.
                                 """)
                         .contact(new Contact()
-                                .name("Portfólio Engenharia de Software Backend")
-                                .url("https://github.com/"))
+                                .name("Geovanne Biela — Engenharia de Software Backend")
+                                .url("https://github.com/geovanneenzo8-maker/mentorflow-api"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")));
