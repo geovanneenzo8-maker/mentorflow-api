@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorFlow — Marketplace & Motor de Agendamento (Java + Spring Boot)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <div class="brand">
+                <div class="brand-badge">MF</div>
+                <div>
+                    <div class="brand-title">MentorFlow <span class="version-pill">Java 21 + Spring Boot 3</span></div>
+                    <div class="brand-subtitle">Marketplace de Mentorias Tech • Prevenção de Concorrência • Split Financeiro 85/15</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <a href="/swagger-ui.html" target="_blank" class="btn btn-outline">
+                    <span>Swagger / OpenAPI</span>
+                </a>
+                <a href="/actuator/health" target="_blank" class="btn btn-outline">
+                    <span class="status-dot"></span>
+                    <span>Actuator Health</span>
+                </a>
+                <a href="/h2-console" target="_blank" class="btn btn-outline">
+                    <span>H2 Database</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <!-- Métricas Financeiras e Operacionais -->
+        <section class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <span class="metric-label">GMV Líquido Movimentado</span>
+                <strong class="metric-value" id="metricGmv">R$ 0,00</strong>
+                <span class="metric-foot">Volume total líquido pós-estornos</span>
+            </div>
+            <div class="metric-card accent-emerald">
+                <span class="metric-label">Repasse aos Mentores (85%)</span>
+                <strong class="metric-value" id="metricMentorPayout">R$ 0,00</strong>
+                <span class="metric-foot">Creditado nas carteiras dos mentores</span>
+            </div>
+            <div class="metric-card accent-indigo">
+                <span class="metric-label">Receita da Plataforma (15%)</span>
+                <strong class="metric-value" id="metricPlatformRev">R$ 0,00</strong>
+                <span class="metric-foot">Take-rate retido pelo marketplace</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Sessões & Status da Máquina</span>
+                <strong class="metric-value" id="metricBookingsCount">0</strong>
+                <span class="metric-foot" id="metricBookingsBreakdown">0 confirmadas • 0 concluídas</span>
+            </div>
+        </section>
+
+        <!-- Laboratório de Engenharia Backend (Para Recrutadores Testarem Regras em 1 Clique) -->
+        <section class="eng-lab-card">
+            <div class="eng-lab-header">
+                <div>
+                    <span class="eyebrow">LABORATÓRIO INTERATIVO DE ENGENHARIA BACKEND</span>
+                    <h2>Teste as Regras de Concorrência, Idempotência e RFC 7807 em Tempo Real</h2>
+                    <p>Dispare cenários reais contra a API Spring Boot e inspecione a resposta HTTP/JSON exata retornada pelo <code>@RestControllerAdvice</code>.</p>
+                </div>
+                <div class="eng-lab-buttons">
+                    <button class="btn btn-warning" id="btnSimulateConflict">
+                        ⚡ Simular Conflito de Horário (409 Conflict)
+                    </button>
+                    <button class="btn btn-secondary" id="btnSimulateRuleError">
+                        🛡️ Simular Violação de Regra (422 Unprocessable)
+                    </button>
+                    <button class="btn btn-primary" id="btnOpenNewBookingModal">
+                        + Novo Agendamento de Mentoria
+                    </button>
+                </div>
+            </div>
+
+            <div class="console-box" id="apiInspectorBox">
+                <div class="console-header">
+                    <span id="consoleStatusBadge" class="http-badge http-200">PRONTO PARA TESTE</span>
+                    <span id="consoleEndpoint" class="console-endpoint">Clique em uma ação ou botão acima para inspecionar o payload HTTP</span>
+                </div>
+                <pre id="consolePayload" class="console-pre">{
+  "info": "As respostas da API (incluindo erros padronizados RFC 7807 ProblemDetail e confirmações de Split Financeiro) aparecerão aqui em tempo real."
+}</pre>
+            </div>
+        </section>
+
+        <!-- Carteira dos Mentorados -->
+        <section class="section-block">
+            <div class="section-header">
+                <div>
+                    <h2>Carteiras de Mentorados (Alunos)</h2>
+                    <p>Saldos utilizados para pagamento atômico no momento da confirmação da reserva.</p>
+                </div>
+            </div>
+            <div class="mentees-row" id="menteesContainer"></div>
+        </section>
+
+        <!-- Catálogo de Mentores -->
+        <section class="section-block">
+            <div class="section-header">
+                <div>
+                    <h2>Mentores Especialistas & Carteiras de Recebimento</h2>
+                    <p>Selecione um mentor para reservar um horário ou filtre por trilha técnica.</p>
+                </div>
+                <div class="filter-bar">
+                    <select id="specialtyFilter" class="input-select">
+                        <option value="">Todas as Especialidades</option>
+                        <option value="BACKEND_JAVA">Engenharia Backend & Java/Spring</option>
+                        <option value="SYSTEM_DESIGN">Arquitetura de Software & System Design</option>
+                        <option value="CLOUD_DEVOPS">Cloud Computing, Kubernetes & SRE</option>
+                        <option value="DATA_ENGINEERING">Engenharia de Dados & IA</option>
+                        <option value="CAREER_INTERVIEW">Carreira Tech, Entrevistas & Código Limpo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mentors-grid" id="mentorsContainer"></div>
+        </section>
+
+        <!-- Ciclo de Vida dos Agendamentos (State Machine) -->
+        <section class="section-block">
+            <div class="section-header">
+                <div>
+                    <h2>Máquina de Estados de Agendamentos (Bookings)</h2>
+                    <p>Gerencie transições: <code>PENDING_PAYMENT</code> → <code>CONFIRMED</code> (gera Split 85/15) → <code>COMPLETED</code> ou <code>CANCELLED</code> (estorno atômico).</p>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mentor & Empresa</th>
+                            <th>Mentorado</th>
+                            <th>Tópico</th>
+                            <th>Horário da Sessão</th>
+                            <th>Total / Split (85% / 15%)</th>
+                            <th>Status</th>
+                            <th>Ações da Máquina de Estados</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Ledger Contábil Imutável -->
+        <section class="section-block">
+            <div class="section-header">
+                <div>
+                    <h2>Ledger Financeiro Auditável (Trilha Contábil Imutável)</h2>
+                    <p>Todos os lançamentos de captura (Escrow), repasse ao mentor (85%), taxa da plataforma (15%) e estornos (Refund).</p>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código Ref.</th>
+                            <th>Reserva</th>
+                            <th>Tipo de Lançamento</th>
+                            <th>Descrição Auditável</th>
+                            <th>Valor</th>
+                            <th>Data / Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Novo Agendamento -->
+    <div class="modal-backdrop hidden" id="bookingModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Agendar Nova Sessão de Mentoria</h3>
+                <button class="modal-close" id="btnCloseModal">&times;</button>
+            </div>
+            <form id="bookingForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formMentorId">Mentor</label>
+                        <select id="formMentorId" required class="input-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="formMenteeId">Mentorado (Pagador)</label>
+                        <select id="formMenteeId" required class="input-control"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="formTopic">Tópico da Mentoria</label>
+                    <input type="text" id="formTopic" required minlength="5" maxlength="180" class="input-control"
+                           value="Arquitetura Limpa, Testes no Spring Boot e Preparação Técnica">
+                </div>
+                <div class="form-group">
+                    <label for="formNotes">Observações / Dúvidas</label>
+                    <textarea id="formNotes" rows="2" class="input-control">Revisão prática de código e simulação de perguntas de entrevista para vaga Backend Júnior.</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formDate">Data da Mentoria</label>
+                        <input type="date" id="formDate" required class="input-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="formStartTime">Início (08:00 às 22:00)</label>
+                        <input type="time" id="formStartTime" required value="19:00" class="input-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="formEndTime">Término</label>
+                        <input type="time" id="formEndTime" required value="20:00" class="input-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="formIdempotency">Chave de Idempotência (Opcional)</label>
+                    <input type="text" id="formIdempotency" class="input-control" placeholder="Gerada automaticamente se em branco">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" id="btnCancelModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Reserva (Verificar Conflito)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

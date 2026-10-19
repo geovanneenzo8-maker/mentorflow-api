@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mentorflow-postgres
+    environment:
+      POSTGRES_DB: mentorflow
+      POSTGRES_USER: mentorflow
+      POSTGRES_PASSWORD: mentorflow123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mentorflow -d mentorflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mentorflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mentorflow-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mentorflow
+      SPRING_DATASOURCE_USERNAME: mentorflow
+      SPRING_DATASOURCE_PASSWORD: mentorflow123
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
