@@ -2,8 +2,167 @@ const state = {
     mentors: [],
     mentees: [],
     bookings: [],
-    metrics: null
+    metrics: null,
+    demoMode: false
 };
+
+// Estado inicial para modo demonstração estática (GitHub Pages) caso o backend Spring Boot não esteja local
+const demoStore = {
+    mentors: [
+        {
+            id: 1,
+            name: "Rafael Mendes",
+            email: "rafael.mendes@mentorflow.dev",
+            title: "Staff Backend Engineer",
+            company: "Itaú Unibanco",
+            bio: "Especialista em arquitetura Java/Spring Boot para sistemas bancários de missão crítica, concorrência, mensageria com Kafka e modelagem relacional.",
+            specialty: "BACKEND_JAVA",
+            skills: ["Java 21", "Spring Boot 3", "JPA/Hibernate", "Kafka", "PostgreSQL", "Testes Integrados"],
+            hourlyRate: 180.00,
+            walletBalance: 306.00,
+            averageRating: 5.0,
+            totalReviews: 1,
+            totalSessionsCompleted: 1
+        },
+        {
+            id: 2,
+            name: "Camila Rocha",
+            email: "camila.rocha@mentorflow.dev",
+            title: "Principal Software Architect",
+            company: "Nubank",
+            bio: "Focada em sistemas distribuídos de alta escala, idempotência financeira, motores de ledger imutável e preparação para entrevistas de System Design.",
+            specialty: "SYSTEM_DESIGN",
+            skills: ["System Design", "Microsserviços", "Consistência Eventual", "Resiliência", "Arquitetura Limpa"],
+            hourlyRate: 240.00,
+            walletBalance: 306.00,
+            averageRating: 5.0,
+            totalReviews: 1,
+            totalSessionsCompleted: 1
+        },
+        {
+            id: 3,
+            name: "Lucas Ferreira",
+            email: "lucas.ferreira@mentorflow.dev",
+            title: "Senior Cloud & SRE Engineer",
+            company: "Mercado Livre",
+            bio: "Engenheiro de plataforma e confiabilidade. Ajudo desenvolvedores backend a dominarem Docker, Kubernetes, CI/CD e observabilidade em produção.",
+            specialty: "CLOUD_DEVOPS",
+            skills: ["Docker", "Kubernetes", "AWS", "GitHub Actions", "Prometheus", "OpenTelemetry"],
+            hourlyRate: 190.00,
+            walletBalance: 0.00,
+            averageRating: 5.0,
+            totalReviews: 0,
+            totalSessionsCompleted: 0
+        },
+        {
+            id: 4,
+            name: "Juliana Martins",
+            email: "juliana.martins@mentorflow.dev",
+            title: "Lead Data & AI Engineer",
+            company: "iFood",
+            bio: "Lidero pipelines de dados em tempo real e integração de modelos de IA em produtos de alto tráfego. Mentoria prática em SQL avançado e arquitetura de dados.",
+            specialty: "DATA_ENGINEERING",
+            skills: ["SQL Tuning", "Apache Spark", "Python", "PostgreSQL", "Engenharia de Dados", "IA Generativa"],
+            hourlyRate: 210.00,
+            walletBalance: 0.00,
+            averageRating: 5.0,
+            totalReviews: 0,
+            totalSessionsCompleted: 0
+        },
+        {
+            id: 5,
+            name: "Bruno Oliveira",
+            email: "bruno.oliveira@mentorflow.dev",
+            title: "Engineering Manager",
+            company: "Santander Tecnologia",
+            bio: "Mais de 120 entrevistas técnicas conduzidas para vagas de Estágio, Júnior e Pleno. Revisão de código, estruturação de portfólio e simulação de entrevista.",
+            specialty: "CAREER_INTERVIEW",
+            skills: ["Entrevistas Técnicas", "Clean Code", "SOLID", "Portfólio GitHub", "Carreira Backend"],
+            hourlyRate: 150.00,
+            walletBalance: 0.00,
+            averageRating: 5.0,
+            totalReviews: 0,
+            totalSessionsCompleted: 0
+        }
+    ],
+    mentees: [
+        { id: 1, name: "Gabriel Almeida", email: "gabriel.almeida@dev.br", roleTarget: "Desenvolvedor Backend Java Júnior", careerLevel: "Júnior / Estágio", walletBalance: 1620.00 },
+        { id: 2, name: "Mariana Costa", email: "mariana.costa@dev.br", roleTarget: "Engenheira de Software Júnior", careerLevel: "Estágio", walletBalance: 1040.00 },
+        { id: 3, name: "Pedro Henrique", email: "pedro.henrique@dev.br", roleTarget: "Desenvolvedor Full-Stack / Backend", careerLevel: "Transição de Carreira", walletBalance: 1420.00 }
+    ],
+    bookings: [
+        {
+            id: 4, mentorId: 3, mentorName: "Lucas Ferreira", mentorCompany: "Mercado Livre",
+            menteeId: 1, menteeName: "Gabriel Almeida",
+            topic: "Containerização de APIs Spring Boot com Docker Compose e PostgreSQL",
+            notes: "Configurar ambiente pronto para produção e healthcheck com Spring Actuator.",
+            startTime: "2026-10-23T20:00:00", endTime: "2026-10-23T21:00:00", durationMinutes: 60,
+            status: "PENDING_PAYMENT", totalAmount: 190.00, mentorAmount: 161.50, platformFee: 28.50,
+            meetingLink: null, idempotencyKey: "seed-booking-004"
+        },
+        {
+            id: 3, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "Itaú Unibanco",
+            menteeId: 3, menteeName: "Pedro Henrique",
+            topic: "Simulação de Entrevista Técnica Java + Revisão de Testes JUnit/MockMvc",
+            notes: "Praticar perguntas de transações (@Transactional), isolamento no banco e APIs REST.",
+            startTime: "2026-10-21T19:00:00", endTime: "2026-10-21T20:00:00", durationMinutes: 60,
+            status: "CONFIRMED", totalAmount: 180.00, mentorAmount: 153.00, platformFee: 27.00,
+            meetingLink: "https://meet.mentorflow.dev/sala-3-a8f91c2b", idempotencyKey: "seed-booking-003"
+        },
+        {
+            id: 2, mentorId: 2, mentorName: "Camila Rocha", mentorCompany: "Nubank",
+            menteeId: 2, menteeName: "Mariana Costa",
+            topic: "System Design: Modelando Carteira Digital, Split de Pagamento e Ledger Imutável",
+            notes: "Entender como fintechs garantem consistência transacional sem perder centavos.",
+            startTime: "2026-10-17T18:00:00", endTime: "2026-10-17T19:30:00", durationMinutes: 90,
+            status: "COMPLETED", totalAmount: 360.00, mentorAmount: 306.00, platformFee: 54.00,
+            meetingLink: "https://meet.mentorflow.dev/sala-2-7d3e901a", idempotencyKey: "seed-booking-002"
+        },
+        {
+            id: 1, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "Itaú Unibanco",
+            menteeId: 1, menteeName: "Gabriel Almeida",
+            topic: "Arquitetura Spring Boot, Prevenção de N+1 no JPA e Locks de Concorrência",
+            notes: "Revisar projeto de portfólio antes de enviar para vagas de Backend Júnior.",
+            startTime: "2026-10-16T19:00:00", endTime: "2026-10-16T20:00:00", durationMinutes: 60,
+            status: "COMPLETED", totalAmount: 180.00, mentorAmount: 153.00, platformFee: 27.00,
+            meetingLink: "https://meet.mentorflow.dev/sala-1-4c2b819e", idempotencyKey: "seed-booking-001"
+        }
+    ],
+    transactions: [
+        { id: 9, bookingId: 3, type: "PLATFORM_FEE_CREDIT", amount: 27.00, description: "Take-rate 15% retido pela plataforma MentorFlow", referenceCode: "TX-3-90142-FEE", createdAt: "2026-10-18T22:10:00" },
+        { id: 8, bookingId: 3, type: "MENTOR_SPLIT_CREDIT", amount: 153.00, description: "Split 85% creditado na carteira do mentor Rafael Mendes", referenceCode: "TX-3-90142-MNT", createdAt: "2026-10-18T22:10:00" },
+        { id: 7, bookingId: 3, type: "PAYMENT_CAPTURED", amount: 180.00, description: "Pagamento capturado de Pedro Henrique para mentoria #3", referenceCode: "TX-3-90142-CAP", createdAt: "2026-10-18T22:10:00" },
+        { id: 6, bookingId: 2, type: "PLATFORM_FEE_CREDIT", amount: 54.00, description: "Take-rate 15% retido pela plataforma MentorFlow", referenceCode: "TX-2-84120-FEE", createdAt: "2026-10-17T17:50:00" },
+        { id: 5, bookingId: 2, type: "MENTOR_SPLIT_CREDIT", amount: 306.00, description: "Split 85% creditado na carteira do mentor Camila Rocha", referenceCode: "TX-2-84120-MNT", createdAt: "2026-10-17T17:50:00" },
+        { id: 4, bookingId: 2, type: "PAYMENT_CAPTURED", amount: 360.00, description: "Pagamento capturado de Mariana Costa para mentoria #2", referenceCode: "TX-2-84120-CAP", createdAt: "2026-10-17T17:50:00" },
+        { id: 3, bookingId: 1, type: "PLATFORM_FEE_CREDIT", amount: 27.00, description: "Take-rate 15% retido pela plataforma MentorFlow", referenceCode: "TX-1-71004-FEE", createdAt: "2026-10-16T18:45:00" },
+        { id: 2, bookingId: 1, type: "MENTOR_SPLIT_CREDIT", amount: 153.00, description: "Split 85% creditado na carteira do mentor Rafael Mendes", referenceCode: "TX-1-71004-MNT", createdAt: "2026-10-16T18:45:00" },
+        { id: 1, bookingId: 1, type: "PAYMENT_CAPTURED", amount: 180.00, description: "Pagamento capturado de Gabriel Almeida para mentoria #1", referenceCode: "TX-1-71004-CAP", createdAt: "2026-10-16T18:45:00" }
+    ]
+};
+
+function computeDemoMetrics() {
+    const captured = demoStore.transactions.filter(t => t.type === 'PAYMENT_CAPTURED').reduce((acc, t) => acc + t.amount, 0);
+    const refunded = demoStore.transactions.filter(t => t.type === 'REFUND_DEBIT').reduce((acc, t) => acc + t.amount, 0);
+    const netGmv = Math.max(0, captured - refunded);
+    const netPlatformRevenue = +(netGmv * 0.15).toFixed(2);
+    const netMentorPayouts = +(netGmv - netPlatformRevenue).toFixed(2);
+
+    return {
+        totalMentors: demoStore.mentors.length,
+        totalMentees: demoStore.mentees.length,
+        totalBookings: demoStore.bookings.length,
+        confirmedBookings: demoStore.bookings.filter(b => b.status === 'CONFIRMED').length,
+        completedBookings: demoStore.bookings.filter(b => b.status === 'COMPLETED').length,
+        pendingBookings: demoStore.bookings.filter(b => b.status === 'PENDING_PAYMENT').length,
+        cancelledBookings: demoStore.bookings.filter(b => b.status === 'CANCELLED').length,
+        grossMerchandiseVolume: netGmv,
+        platformNetRevenue: netPlatformRevenue,
+        mentorTotalPayouts: netMentorPayouts,
+        totalRefunded: refunded,
+        recentTransactions: demoStore.transactions
+    };
+}
 
 const brlFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -37,35 +196,200 @@ function logToInspector(method, endpoint, status, payload) {
     pre.textContent = JSON.stringify(payload, null, 2);
 }
 
-async function apiRequest(method, url, body = null) {
-    const opts = {
-        method,
-        headers: { 'Content-Type': 'application/json' }
-    };
-    if (body) {
-        opts.body = JSON.stringify(body);
+function handleDemoRequest(method, url, body) {
+    const nowIso = new Date().toISOString();
+
+    if (method === 'POST' && url === '/api/v1/bookings') {
+        const start = new Date(body.startTime);
+        const end = new Date(body.endTime);
+        const durationMinutes = Math.round((end - start) / 60000);
+
+        if (durationMinutes < 30 || durationMinutes > 180) {
+            return {
+                ok: false,
+                status: 422,
+                data: {
+                    type: "https://mentorflow.portfolio.dev/errors/business-rule-violation",
+                    title: "Violação de Regra de Negócio",
+                    status: 422,
+                    detail: "A duração da mentoria deve ser de no mínimo 30 minutos e no máximo 180 minutos (3 horas).",
+                    instance: "/api/v1/bookings",
+                    errorCode: "INVALID_SESSION_DURATION",
+                    timestamp: nowIso
+                }
+            };
+        }
+
+        const conflict = demoStore.bookings.find(b =>
+            b.mentorId === Number(body.mentorId) &&
+            (b.status === 'PENDING_PAYMENT' || b.status === 'CONFIRMED') &&
+            new Date(b.startTime) < end &&
+            new Date(b.endTime) > start
+        );
+
+        if (conflict) {
+            return {
+                ok: false,
+                status: 409,
+                data: {
+                    type: "https://mentorflow.portfolio.dev/errors/schedule-conflict",
+                    title: "Conflito de Agendamento Detectado (Double-Booking Prevention)",
+                    status: 409,
+                    detail: `Conflito de agenda: o mentor ${conflict.mentorName} já possui a mentoria #${conflict.id} agendada no intervalo solicitado.`,
+                    instance: "/api/v1/bookings",
+                    errorCode: "SCHEDULE_OVERLAP_CONFLICT",
+                    conflictingBookingId: conflict.id,
+                    timestamp: nowIso
+                }
+            };
+        }
+
+        const mentor = demoStore.mentors.find(m => m.id === Number(body.mentorId));
+        const mentee = demoStore.mentees.find(s => s.id === Number(body.menteeId));
+        const totalAmount = +(mentor.hourlyRate * (durationMinutes / 60)).toFixed(2);
+        const platformFee = +(totalAmount * 0.15).toFixed(2);
+        const mentorAmount = +(totalAmount - platformFee).toFixed(2);
+
+        const newBooking = {
+            id: demoStore.bookings.length + 1,
+            mentorId: mentor.id,
+            mentorName: mentor.name,
+            mentorCompany: mentor.company,
+            menteeId: mentee.id,
+            menteeName: mentee.name,
+            topic: body.topic,
+            notes: body.notes,
+            startTime: body.startTime,
+            endTime: body.endTime,
+            durationMinutes,
+            status: "PENDING_PAYMENT",
+            totalAmount,
+            mentorAmount,
+            platformFee,
+            meetingLink: null,
+            idempotencyKey: body.idempotencyKey || `bk-${Math.random().toString(36).substring(2, 10)}`
+        };
+        demoStore.bookings.unshift(newBooking);
+        return { ok: true, status: 201, data: newBooking };
     }
-    const res = await fetch(url, opts);
-    const data = await res.json().catch(() => ({}));
-    logToInspector(method, url, res.status, data);
-    return { ok: res.ok, status: res.status, data };
+
+    if (method === 'POST' && url.endsWith('/confirm-payment')) {
+        const id = Number(url.split('/')[4]);
+        const booking = demoStore.bookings.find(b => b.id === id);
+        const mentor = demoStore.mentors.find(m => m.id === booking.mentorId);
+        const mentee = demoStore.mentees.find(s => s.id === booking.menteeId);
+
+        mentee.walletBalance = +(mentee.walletBalance - booking.totalAmount).toFixed(2);
+        mentor.walletBalance = +(mentor.walletBalance + booking.mentorAmount).toFixed(2);
+        booking.status = 'CONFIRMED';
+        booking.meetingLink = `https://meet.mentorflow.dev/sala-${booking.id}-live`;
+
+        const ref = `TX-${booking.id}-${Math.floor(10000 + Math.random() * 89999)}`;
+        demoStore.transactions.unshift(
+            { id: Date.now() + 3, bookingId: booking.id, type: "PLATFORM_FEE_CREDIT", amount: booking.platformFee, description: "Take-rate 15% retido pela plataforma MentorFlow", referenceCode: `${ref}-FEE`, createdAt: nowIso },
+            { id: Date.now() + 2, bookingId: booking.id, type: "MENTOR_SPLIT_CREDIT", amount: booking.mentorAmount, description: `Split 85% creditado na carteira do mentor ${mentor.name}`, referenceCode: `${ref}-MNT`, createdAt: nowIso },
+            { id: Date.now() + 1, bookingId: booking.id, type: "PAYMENT_CAPTURED", amount: booking.totalAmount, description: `Pagamento capturado de ${mentee.name} para mentoria #${booking.id}`, referenceCode: `${ref}-CAP`, createdAt: nowIso }
+        );
+        return { ok: true, status: 200, data: booking };
+    }
+
+    if (method === 'POST' && url.endsWith('/complete')) {
+        const id = Number(url.split('/')[4]);
+        const booking = demoStore.bookings.find(b => b.id === id);
+        const mentor = demoStore.mentors.find(m => m.id === booking.mentorId);
+        booking.status = 'COMPLETED';
+        mentor.totalSessionsCompleted += 1;
+        return { ok: true, status: 200, data: booking };
+    }
+
+    if (method === 'POST' && url.endsWith('/cancel')) {
+        const id = Number(url.split('/')[4]);
+        const booking = demoStore.bookings.find(b => b.id === id);
+        if (booking.status === 'CONFIRMED') {
+            const mentor = demoStore.mentors.find(m => m.id === booking.mentorId);
+            const mentee = demoStore.mentees.find(s => s.id === booking.menteeId);
+            mentee.walletBalance = +(mentee.walletBalance + booking.totalAmount).toFixed(2);
+            mentor.walletBalance = +(mentor.walletBalance - booking.mentorAmount).toFixed(2);
+            demoStore.transactions.unshift({
+                id: Date.now(),
+                bookingId: booking.id,
+                type: "REFUND_DEBIT",
+                amount: booking.totalAmount,
+                description: `Estorno integral ao mentorado ${mentee.name} por cancelamento`,
+                referenceCode: `TX-REF-${booking.id}`,
+                createdAt: nowIso
+            });
+        }
+        booking.status = 'CANCELLED';
+        return { ok: true, status: 200, data: booking };
+    }
+
+    if (method === 'POST' && url.includes('/topup')) {
+        const id = Number(url.split('/')[4]);
+        const mentee = demoStore.mentees.find(s => s.id === id);
+        mentee.walletBalance = +(mentee.walletBalance + 500).toFixed(2);
+        return { ok: true, status: 200, data: mentee };
+    }
+
+    return { ok: true, status: 200, data: {} };
+}
+
+async function apiRequest(method, url, body = null) {
+    if (state.demoMode) {
+        const sim = handleDemoRequest(method, url, body);
+        logToInspector(method, url, sim.status, sim.data);
+        return sim;
+    }
+
+    try {
+        const opts = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (body) {
+            opts.body = JSON.stringify(body);
+        }
+        const res = await fetch(url, opts);
+        const data = await res.json().catch(() => ({}));
+        logToInspector(method, url, res.status, data);
+        return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+        state.demoMode = true;
+        const sim = handleDemoRequest(method, url, body);
+        logToInspector(method, url, sim.status, sim.data);
+        return sim;
+    }
 }
 
 async function refreshAll() {
     const specialty = document.getElementById('specialtyFilter').value;
     const mentorQuery = specialty ? `?specialty=${encodeURIComponent(specialty)}` : '';
 
-    const [metricsRes, mentorsRes, menteesRes, bookingsRes] = await Promise.all([
-        fetch('/api/v1/dashboard/metrics').then(r => r.json()),
-        fetch(`/api/v1/mentors${mentorQuery}`).then(r => r.json()),
-        fetch('/api/v1/mentees').then(r => r.json()),
-        fetch('/api/v1/bookings').then(r => r.json())
-    ]);
+    try {
+        if (state.demoMode) throw new Error('Static Demo Mode');
+        const metricsCheck = await fetch('/api/v1/dashboard/metrics');
+        if (!metricsCheck.ok) throw new Error('Static host detected');
 
-    state.metrics = metricsRes;
-    state.mentors = mentorsRes;
-    state.mentees = menteesRes;
-    state.bookings = bookingsRes;
+        const [metricsRes, mentorsRes, menteesRes, bookingsRes] = await Promise.all([
+            metricsCheck.json(),
+            fetch(`/api/v1/mentors${mentorQuery}`).then(r => r.json()),
+            fetch('/api/v1/mentees').then(r => r.json()),
+            fetch('/api/v1/bookings').then(r => r.json())
+        ]);
+
+        state.metrics = metricsRes;
+        state.mentors = mentorsRes;
+        state.mentees = menteesRes;
+        state.bookings = bookingsRes;
+    } catch (e) {
+        state.demoMode = true;
+        state.metrics = computeDemoMetrics();
+        state.mentors = specialty
+            ? demoStore.mentors.filter(m => m.specialty === specialty)
+            : [...demoStore.mentors];
+        state.mentees = [...demoStore.mentees];
+        state.bookings = [...demoStore.bookings];
+    }
 
     renderMetrics();
     renderMentees();
@@ -265,7 +589,6 @@ function openBookingForMentor(mentorId) {
     document.getElementById('bookingModal').classList.remove('hidden');
 }
 
-// Simulações de Engenharia Backend em 1 clique
 document.getElementById('btnSimulateConflict').addEventListener('click', async () => {
     const activeBooking = state.bookings.find(b => b.status === 'CONFIRMED' || b.status === 'PENDING_PAYMENT');
     if (!activeBooking) {
@@ -335,7 +658,6 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Inicializa a data padrão do modal para daqui a 5 dias
 const defaultDate = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
 document.getElementById('formDate').value = defaultDate;
 
