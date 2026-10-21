@@ -1,4 +1,4 @@
-name: Java CI — Build & Integration Tests
+name: Java CI — Concurrency Suite (H2 & Real PostgreSQL 16)
 
 on:
   push:
@@ -9,6 +9,21 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: mentorflow
+          POSTGRES_USER: mentorflow
+          POSTGRES_PASSWORD: mentorflow123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -21,5 +36,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Execute Maven Build & JUnit 5 Integration Suite
-        run: chmod +x mvnw && ./mvnw clean verify -B
+      - name: Run Integration & Multi-Threaded Concurrency Tests (PostgreSQL 16 Real)
+        env:
+          SPRING_PROFILES_ACTIVE: postgres
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mentorflow
+          SPRING_DATASOURCE_USERNAME: mentorflow
+          SPRING_DATASOURCE_PASSWORD: mentorflow123
+        run: chmod +x mvnw && ./mvnw clean test -B
+
+      - name: Run Integration & Multi-Threaded Concurrency Tests (Default Profile)
+        run: ./mvnw test -B

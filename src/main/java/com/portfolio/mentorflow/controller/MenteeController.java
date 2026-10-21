@@ -35,9 +35,9 @@ public class MenteeController {
 
     @PostMapping("/{id}/topup")
     @Transactional
-    @Operation(summary = "Adicionar créditos na carteira do mentorado", description = "Recarrega o saldo da carteira do mentorado para simulação de novos pagamentos.")
+    @Operation(summary = "Adicionar créditos na carteira do mentorado", description = "Recarrega o saldo da carteira do mentorado com lock pessimista na linha.")
     public MenteeResponse topUpWallet(@PathVariable Long id, @RequestParam(defaultValue = "500.00") BigDecimal amount) {
-        Mentee mentee = menteeRepository.findById(id)
+        Mentee mentee = menteeRepository.findByIdWithLock(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mentorado não encontrado com ID: " + id));
         mentee.creditWallet(amount);
         return MenteeResponse.fromEntity(mentee);

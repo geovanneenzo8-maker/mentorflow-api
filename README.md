@@ -5,29 +5,49 @@
 ![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Spring Data JPA](https://img.shields.io/badge/JPA%20%2F%20Hibernate-6.6-59666C?style=for-the-badge&logo=hibernate&logoColor=white)
 ![OpenAPI 3](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
-![JUnit 5](https://img.shields.io/badge/Testes-JUnit%205%20%2B%20MockMvc-25A162?style=for-the-badge&logo=junit5&logoColor=white)
+![JUnit 5](https://img.shields.io/badge/Testes-JUnit%205%20%2B%20Concorr%C3%AAncia-25A162?style=for-the-badge&logo=junit5&logoColor=white)
 
-**MentorFlow** é uma API RESTful e plataforma de agendamento de mentorias técnicas desenvolvida com **Java 21** e **Spring Boot 3**, projetada para demonstrar soluções reais de **Engenharia de Software Backend**: controle de concorrência contra *Double-Booking*, idempotência, máquina de estados transacional, cálculo de *split* de pagamentos (85% / 15%) e trilha contábil imutável (*Financial Ledger*).
+**MentorFlow** é uma API RESTful e plataforma de agendamento de mentorias técnicas desenvolvida com **Java 21** e **Spring Boot 3**, projetada para demonstrar e comprovar em testes automatizados soluções reais de **Engenharia de Software Backend**: controle de concorrência contra *Double-Booking* e *Lost Update*, idempotência sob requisições simultâneas, máquina de estados temporal, cálculo de *split* de pagamentos (85% / 15%) sem erro de arredondamento intermediário e trilha contábil imutável (*Financial Ledger*).
 
 ---
 
-## 🎯 Por que este projeto vai além de um CRUD básico?
+## 🔬 Engenharia de Confiabilidade: Cenários de Falha, Causas e Testes que Comprovam
 
-Em entrevistas técnicas para vagas de **Desenvolvedor Backend Java (Estágio / Júnior)**, recrutadores e *Tech Leads* avaliam se o candidato compreende problemas reais de produção. Este projeto resolve 5 desafios clássicos de engenharia:
+Cada garantia arquitetural deste projeto foi modelada a partir de cenários reais de concorrência e precisão financeira, acompanhada de um **teste automatizado dedicado** em [`MentorFlowApplicationTests.java`](src/test/java/com/portfolio/mentorflow/MentorFlowApplicationTests.java) que tenta quebrar a invariante:
 
-1. **Prevenção de Concorrência e *Double-Booking* (`PESSIMISTIC_WRITE` + Overlap Detection):**
-   - Ao agendar um horário, a transação adquire um *lock pessimista de escrita* (`@Lock(LockModeType.PESSIMISTIC_WRITE)`) no registro do Mentor antes de validar a interseção de horários (`startTime < reqEnd AND endTime > reqStart`).
-   - Se duas requisições tentarem reservar o mesmo horário simultaneamente, o banco serializa a verificação e rejeita a segunda tentativa com **HTTP 409 Conflict**.
-2. **Motor Financeiro de Split (85% / 15%) sem Perda de Centavos (`BigDecimal`):**
-   - Toda operação monetária utiliza `BigDecimal` com arredondamento bancário `RoundingMode.HALF_UP`.
-   - Na confirmação do pagamento, o sistema debita a carteira do mentorado, credita **85%** na carteira do mentor, retém **15%** de *take-rate* da plataforma e grava 3 registros imutáveis no **Ledger Contábil**.
-3. **Estorno Reverso Atômico (`@Transactional`):**
-   - Caso uma mentoria já paga (`CONFIRMED`) seja cancelada, o sistema reverte o *split* atomicamente, devolve 100% do saldo ao mentorado, registra um lançamento `REFUND_DEBIT` no Ledger e **libera imediatamente a janela de horário** na agenda do mentor.
-4. **Idempotência de Requisições (`idempotencyKey`):**
-   - Evita reservas duplicadas caso o cliente sofra *timeout* e reenvie a mesma requisição `POST /api/v1/bookings`.
-5. **Prevenção do Problema de N+1 Queries & Padrão RFC 7807 (`ProblemDetail`):**
-   - `spring.jpa.open-in-view=false` configurado por padrão, utilizando queries JPQL com `JOIN FETCH`.
-   - Tratamento global de erros (`@RestControllerAdvice`) padronizado na especificação **RFC 7807 (Problem Details for HTTP APIs)**.
+### 1. Concorrência na Carteira do Aluno (*Lost Update* em Pagamentos Simultâneos)
+* **Cenário:** O mesmo mentorado dispara simultaneamente a confirmação de pagamento (`confirmPayment`) de duas mentorias distintas para **mentores diferentes**.
+* **Falha se mal implementado:** Apenas `@Transactional` (em nível `READ COMMITTED`) ou lock apenas no `Mentor` não impede que as duas transações leiam o mesmo `walletBalance` do `Mentee`, validem o saldo em paralelo e sobrescrevam o `UPDATE` uma da outra (*Lost Update* / *Write Skew*).
+* **Causa Raiz:** Ausência de serialização na linha da entidade pagadora (`Mentee`) durante a leitura-validação-débito.
+* **Solução Aplicada:** Lock pessimista explícito (`@Lock(LockModeType.PESSIMISTIC_WRITE)` -> `SELECT ... FOR UPDATE`) no `Booking`, no `Mentee` (`MenteeRepository.findByIdWithLock`) e no `Mentor`, além de `@Version` na entidade `Mentee`.
+* **Teste que Comprova:** `shouldPreventLostUpdateWhenSameMenteePaysTwoDifferentMentorsConcurrently()` — dispara threads simultâneas com `CountDownLatch` validando tanto o bloqueio por saldo insuficiente (`200` + `422`) quanto a soma exata de dois débitos concorrentes com saldo suficiente (`R$ 500 - R$ 180 - R$ 190 = R$ 130,00`).
+
+### 2. Precisão Monetária em Minutos Fracionados (`BigDecimal`)
+* **Cenário:** Sessão de **31 minutos** com um mentor cujo valor/hora é **R$ 1.500,00**.
+* **Falha se mal implementado:** Se o código dividir `31 / 60` primeiro e arredondar para 4 casas decimais (`0,5167` horas) antes de multiplicar por `1500,00`, o resultado será **R$ 775,05** em vez do valor exato **R$ 775,00** ($\frac{1500 \times 31}{60} = 775$).
+* **Causa Raiz:** Arredondamento prematuro na divisão intermediária de tempo antes da multiplicação pela tarifa horária.
+* **Solução Aplicada:** Multiplicação antes da divisão com arredondamento apenas no resultado monetário final:
+  `mentor.getHourlyRate().multiply(BigDecimal.valueOf(durationMinutes)).divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP)`.
+* **Teste que Comprova:** `shouldCalculateExactFractionalMinutesWithoutPrematureRounding()` — valida que 31 min a R$ 1.500/h resulta exatamente em `totalAmount = 775.00`, `platformFee = 116.25` (15%) e `mentorAmount = 658.75` (85%).
+
+### 3. Brecha de *Double-Booking* na Máquina de Estados (`COMPLETED` e Sessões Futuras)
+* **Cenário:** Concluir prematuramente uma sessão futura ou tentar criar um novo agendamento sobrepondo o horário de uma sessão já marcada como `COMPLETED`.
+* **Falha se mal implementado:** Se `completeBooking` não validar o relógio e a query de *overlap* filtrar apenas `PENDING_PAYMENT` e `CONFIRMED`, concluir uma reserva libera indevidamente o intervalo para uma segunda reserva no mesmo horário.
+* **Causa Raiz:** Exclusão do estado `COMPLETED` na lista de status ocupados e falta de invariante temporal na transição `CONFIRMED -> COMPLETED`.
+* **Solução Aplicada:** Inclusão de `COMPLETED` em `OCCUPIED_STATUSES` (`PENDING_PAYMENT`, `CONFIRMED`, `COMPLETED` — somente `CANCELLED` libera agenda) e bloqueio de conclusão de sessões futuras (`LocalDateTime.now().isBefore(booking.getStartTime())` -> `422 PREMATURE_SESSION_COMPLETION`).
+* **Teste que Comprova:** `shouldRejectPrematureCompletionOfFutureSessionAndKeepCompletedSlotOccupied()`.
+
+### 4. Condição de Corrida na Idempotência (`idempotencyKey`)
+* **Cenário:** Duas ou mais requisições idênticas (mesma `idempotencyKey`, ex: *retry* de rede simultâneo) chegam no mesmo milissegundo.
+* **Falha se mal implementado:** Se `findByIdempotencyKey` for consultado apenas *antes* do lock pessimista no mentor, ambas as threads passam pela verificação inicial como `empty`. A primeira cria a reserva e a segunda, ao adquirir o lock em seguida, bate na verificação de conflito de horário e recebe **`409 Conflict`** em vez de receber a mesma reserva idempotente.
+* **Causa Raiz:** Falta de revalidação (*Double-Checked Locking*) da chave de idempotência após a aquisição do lock de exclusão mútua.
+* **Solução Aplicada:** Revalidação de `bookingRepository.findByIdempotencyKey(normalizedKey)` imediatamente após `mentorRepository.findByIdWithLock(mentorId)`.
+* **Teste que Comprova:** `shouldGuaranteeConcurrentIdempotencyWhenSimultaneousRequestsShareSameKey()` — dispara **8 threads simultâneas** com a mesma chave e comprova que todas as 8 recebem `201 Created` com o **mesmo `booking.id`**.
+
+### 5. Auditoria Contábil de Pagamento e Estorno (`LedgerTransaction`)
+* **Cenário:** Ciclo completo de captura de pagamento com *split* (85%/15%) seguido de cancelamento com estorno reverso.
+* **Solução Aplicada:** Reversão atômica sob lock pessimista nas carteiras de `Mentee` e `Mentor` e gravação de lançamento `REFUND_DEBIT` no Ledger imutável.
+* **Teste que Comprova:** `shouldAuditWalletBalancesAndLedgerEntriesAfterPaymentAndRefund()` — confere centavo a centavo os saldos iniciais, pós-pagamento e pós-estorno de ambas as carteiras, além dos 4 lançamentos contábeis gerados (`PAYMENT_CAPTURED`, `MENTOR_SPLIT_CREDIT`, `PLATFORM_FEE_CREDIT` e `REFUND_DEBIT`).
 
 ---
 
@@ -35,11 +55,11 @@ Em entrevistas técnicas para vagas de **Desenvolvedor Backend Java (Estágio / 
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PENDING_PAYMENT : POST /api/v1/bookings (Valida Overlap + Lock)
-    PENDING_PAYMENT --> CONFIRMED : POST /confirm-payment (Debita Aluno + Split 85/15 + Ledger)
+    [*] --> PENDING_PAYMENT : POST /api/v1/bookings (Lock Mentor + Double-Check Idempotency + Overlap)
+    PENDING_PAYMENT --> CONFIRMED : POST /confirm-payment (Lock Booking/Mentee/Mentor + Split 85/15 + Ledger)
     PENDING_PAYMENT --> CANCELLED : POST /cancel (Libera horário sem movimentação financeira)
-    CONFIRMED --> COMPLETED : POST /complete (Incrementa sessões do mentor + Libera Review)
-    CONFIRMED --> CANCELLED : POST /cancel (Estorno atômico 100% + REFUND_DEBIT no Ledger + Libera horário)
+    CONFIRMED --> COMPLETED : POST /complete (Exige startTime <= agora + Mantém slot ocupado)
+    CONFIRMED --> CANCELLED : POST /cancel (Lock Carteiras + Estorno 100% + REFUND_DEBIT + Libera horário)
     COMPLETED --> [*]
     CANCELLED --> [*]
 ```
@@ -64,13 +84,14 @@ erDiagram
         BigDecimal hourlyRate
         BigDecimal walletBalance
         Double averageRating
-        Long version "Optimistic Lock"
+        Long version "Optimistic + Pessimistic Lock"
     }
     MENTEE {
         Long id PK
         String name
         String roleTarget
         BigDecimal walletBalance
+        Long version "Optimistic + Pessimistic Lock"
     }
     BOOKING {
         Long id PK
@@ -81,6 +102,7 @@ erDiagram
         BigDecimal mentorAmount "85%"
         BigDecimal platformFee "15%"
         String idempotencyKey UK
+        Long version
     }
     LEDGER_TRANSACTION {
         Long id PK
@@ -95,10 +117,7 @@ erDiagram
 
 ## 🚀 Como Executar o Projeto
 
-### Opção 1: Execução Rápida Zero-Config (Banco H2 em Memória + Dados Pré-Populados)
-
-Não é necessário instalar banco de dados externo. O projeto já inclui o **Maven Wrapper** e um `DataSeederConfig` que popula mentores, alunos, saldos, agendamentos e transações ao iniciar:
-
+### Opção 1: Execução Local Rápida
 ```powershell
 # No Windows PowerShell / CMD:
 .\mvnw.cmd spring-boot:run
@@ -107,43 +126,22 @@ Não é necessário instalar banco de dados externo. O projeto já inclui o **Ma
 ./mvnw spring-boot:run
 ```
 
-Acesse imediatamente no navegador:
+Acesse no navegador:
 - 🖥️ **Dashboard Interativo & Laboratório de Engenharia:** [http://localhost:8080](http://localhost:8080)
 - 📄 **Documentação Interativa Swagger UI (OpenAPI 3):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - 🩺 **Spring Boot Actuator (Healthcheck):** [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
-- 🗄️ **Console do Banco H2:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console) (`JDBC URL`: `jdbc:h2:mem:mentorflowdb`)
 
-### Opção 2: Com Docker Compose + PostgreSQL 16
-
+### Opção 2: Com Docker Compose + PostgreSQL 16 Real
 ```bash
 docker compose up --build
 ```
 
 ---
 
-## 🧪 Executando a Suíte de Testes Automatizados (JUnit 5 + MockMvc)
+## 🧪 Executando a Suíte de Testes (Concorrência Multi-Thread & Integração)
 
-O projeto conta com testes de integração de ponta a ponta validando filtros, cálculo de split 85/15, idempotência, bloqueio de conflito de horário (`HTTP 409`), máquina de estados e estorno com liberação de agenda:
+A suíte executa testes concorrentes com `ExecutorService` e `CountDownLatch` validando *locks* pessimistas, idempotência simultânea, precisão de centavos em minutos fracionados e reconciliação de carteiras/ledger (executada também contra **PostgreSQL 16 real** no pipeline do GitHub Actions):
 
 ```powershell
 .\mvnw.cmd test
 ```
-
----
-
-## 📡 Principais Endpoints da API REST
-
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/v1/mentors` | Lista mentores (aceita filtro `?specialty=BACKEND_JAVA`) |
-| `POST` | `/api/v1/mentors` | Cadastra novo mentor com validação Bean Validation |
-| `POST` | `/api/v1/mentors/{id}/availability` | Adiciona janela semanal de atendimento |
-| `GET` | `/api/v1/mentees` | Lista mentorados e saldos de carteira |
-| `POST` | `/api/v1/bookings` | Cria agendamento com detecção de conflito e idempotência |
-| `POST` | `/api/v1/bookings/{id}/confirm-payment` | Executa pagamento atômico, split 85/15 e registro no Ledger |
-| `POST` | `/api/v1/bookings/{id}/complete` | Conclui sessão de mentoria |
-| `POST` | `/api/v1/bookings/{id}/cancel` | Cancela reserva, realiza estorno e libera horário |
-| `POST` | `/api/v1/reviews` | Avalia mentoria concluída e recalcula média do mentor |
-| `GET` | `/api/v1/dashboard/metrics` | Retorna GMV, receita da plataforma e extrato do Ledger |
-
----

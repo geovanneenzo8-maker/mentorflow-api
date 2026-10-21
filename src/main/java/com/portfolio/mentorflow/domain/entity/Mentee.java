@@ -29,6 +29,9 @@ public class Mentee {
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal walletBalance = BigDecimal.ZERO;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -85,6 +88,10 @@ public class Mentee {
 
     public BigDecimal getWalletBalance() {
         return walletBalance;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 
     public LocalDateTime getCreatedAt() {

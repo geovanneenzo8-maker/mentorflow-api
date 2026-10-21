@@ -22,6 +22,8 @@ public interface LedgerTransactionRepository extends JpaRepository<LedgerTransac
         """)
     List<LedgerTransaction> findAllWithBookingDetailsOrderByCreatedAtDesc();
 
+    List<LedgerTransaction> findByBookingIdOrderByIdAsc(Long bookingId);
+
     @Query("SELECT COALESCE(SUM(l.amount), 0) FROM LedgerTransaction l WHERE l.type = :type")
     BigDecimal sumAmountByType(@Param("type") TransactionType type);
 }

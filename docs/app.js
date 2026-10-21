@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
     mentors: [],
     mentees: [],
     bookings: [],
@@ -6,7 +6,7 @@ const state = {
     demoMode: false
 };
 
-// Estado inicial para modo demonstração estática (GitHub Pages) caso o backend Spring Boot não esteja local
+// Estado inicial para modo demonstraÃ§Ã£o estÃ¡tica (GitHub Pages) caso o backend Spring Boot nÃ£o esteja local
 const demoStore = {
     mentors: [
         {
@@ -14,8 +14,8 @@ const demoStore = {
             name: "Rafael Mendes",
             email: "rafael.mendes@mentorflow.dev",
             title: "Staff Backend Engineer",
-            company: "Itaú Unibanco",
-            bio: "Especialista em arquitetura Java/Spring Boot para sistemas bancários de missão crítica, concorrência, mensageria com Kafka e modelagem relacional.",
+            company: "ItaÃº Unibanco",
+            bio: "Especialista em arquitetura Java/Spring Boot para sistemas bancÃ¡rios de missÃ£o crÃ­tica, concorrÃªncia, mensageria com Kafka e modelagem relacional.",
             specialty: "BACKEND_JAVA",
             skills: ["Java 21", "Spring Boot 3", "JPA/Hibernate", "Kafka", "PostgreSQL", "Testes Integrados"],
             hourlyRate: 180.00,
@@ -30,9 +30,9 @@ const demoStore = {
             email: "camila.rocha@mentorflow.dev",
             title: "Principal Software Architect",
             company: "Nubank",
-            bio: "Focada em sistemas distribuídos de alta escala, idempotência financeira, motores de ledger imutável e preparação para entrevistas de System Design.",
+            bio: "Focada em sistemas distribuÃ­dos de alta escala, idempotÃªncia financeira, motores de ledger imutÃ¡vel e preparaÃ§Ã£o para entrevistas de System Design.",
             specialty: "SYSTEM_DESIGN",
-            skills: ["System Design", "Microsserviços", "Consistência Eventual", "Resiliência", "Arquitetura Limpa"],
+            skills: ["System Design", "MicrosserviÃ§os", "ConsistÃªncia Eventual", "ResiliÃªncia", "Arquitetura Limpa"],
             hourlyRate: 240.00,
             walletBalance: 306.00,
             averageRating: 5.0,
@@ -45,7 +45,7 @@ const demoStore = {
             email: "lucas.ferreira@mentorflow.dev",
             title: "Senior Cloud & SRE Engineer",
             company: "Mercado Livre",
-            bio: "Engenheiro de plataforma e confiabilidade. Ajudo desenvolvedores backend a dominarem Docker, Kubernetes, CI/CD e observabilidade em produção.",
+            bio: "Engenheiro de plataforma e confiabilidade. Ajudo desenvolvedores backend a dominarem Docker, Kubernetes, CI/CD e observabilidade em produÃ§Ã£o.",
             specialty: "CLOUD_DEVOPS",
             skills: ["Docker", "Kubernetes", "AWS", "GitHub Actions", "Prometheus", "OpenTelemetry"],
             hourlyRate: 190.00,
@@ -60,7 +60,7 @@ const demoStore = {
             email: "juliana.martins@mentorflow.dev",
             title: "Lead Data & AI Engineer",
             company: "iFood",
-            bio: "Lidero pipelines de dados em tempo real e integração de modelos de IA em produtos de alto tráfego. Mentoria prática em SQL avançado e arquitetura de dados.",
+            bio: "Lidero pipelines de dados em tempo real e integraÃ§Ã£o de modelos de IA em produtos de alto trÃ¡fego. Mentoria prÃ¡tica em SQL avanÃ§ado e arquitetura de dados.",
             specialty: "DATA_ENGINEERING",
             skills: ["SQL Tuning", "Apache Spark", "Python", "PostgreSQL", "Engenharia de Dados", "IA Generativa"],
             hourlyRate: 210.00,
@@ -75,9 +75,9 @@ const demoStore = {
             email: "bruno.oliveira@mentorflow.dev",
             title: "Engineering Manager",
             company: "Santander Tecnologia",
-            bio: "Mais de 120 entrevistas técnicas conduzidas para vagas de Estágio, Júnior e Pleno. Revisão de código, estruturação de portfólio e simulação de entrevista.",
+            bio: "Mais de 120 entrevistas tÃ©cnicas conduzidas para vagas de EstÃ¡gio, JÃºnior e Pleno. RevisÃ£o de cÃ³digo, estruturaÃ§Ã£o de portfÃ³lio e simulaÃ§Ã£o de entrevista.",
             specialty: "CAREER_INTERVIEW",
-            skills: ["Entrevistas Técnicas", "Clean Code", "SOLID", "Portfólio GitHub", "Carreira Backend"],
+            skills: ["Entrevistas TÃ©cnicas", "Clean Code", "SOLID", "PortfÃ³lio GitHub", "Carreira Backend"],
             hourlyRate: 150.00,
             walletBalance: 0.00,
             averageRating: 5.0,
@@ -86,25 +86,25 @@ const demoStore = {
         }
     ],
     mentees: [
-        { id: 1, name: "Gabriel Almeida", email: "gabriel.almeida@dev.br", roleTarget: "Desenvolvedor Backend Java Júnior", careerLevel: "Júnior / Estágio", walletBalance: 1620.00 },
-        { id: 2, name: "Mariana Costa", email: "mariana.costa@dev.br", roleTarget: "Engenheira de Software Júnior", careerLevel: "Estágio", walletBalance: 1040.00 },
-        { id: 3, name: "Pedro Henrique", email: "pedro.henrique@dev.br", roleTarget: "Desenvolvedor Full-Stack / Backend", careerLevel: "Transição de Carreira", walletBalance: 1420.00 }
+        { id: 1, name: "Gabriel Almeida", email: "gabriel.almeida@dev.br", roleTarget: "Desenvolvedor Backend Java JÃºnior", careerLevel: "JÃºnior / EstÃ¡gio", walletBalance: 1620.00 },
+        { id: 2, name: "Mariana Costa", email: "mariana.costa@dev.br", roleTarget: "Engenheira de Software JÃºnior", careerLevel: "EstÃ¡gio", walletBalance: 1040.00 },
+        { id: 3, name: "Pedro Henrique", email: "pedro.henrique@dev.br", roleTarget: "Desenvolvedor Full-Stack / Backend", careerLevel: "TransiÃ§Ã£o de Carreira", walletBalance: 1420.00 }
     ],
     bookings: [
         {
             id: 4, mentorId: 3, mentorName: "Lucas Ferreira", mentorCompany: "Mercado Livre",
             menteeId: 1, menteeName: "Gabriel Almeida",
-            topic: "Containerização de APIs Spring Boot com Docker Compose e PostgreSQL",
-            notes: "Configurar ambiente pronto para produção e healthcheck com Spring Actuator.",
+            topic: "ContainerizaÃ§Ã£o de APIs Spring Boot com Docker Compose e PostgreSQL",
+            notes: "Configurar ambiente pronto para produÃ§Ã£o e healthcheck com Spring Actuator.",
             startTime: "2026-10-23T20:00:00", endTime: "2026-10-23T21:00:00", durationMinutes: 60,
             status: "PENDING_PAYMENT", totalAmount: 190.00, mentorAmount: 161.50, platformFee: 28.50,
             meetingLink: null, idempotencyKey: "seed-booking-004"
         },
         {
-            id: 3, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "Itaú Unibanco",
+            id: 3, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "ItaÃº Unibanco",
             menteeId: 3, menteeName: "Pedro Henrique",
-            topic: "Simulação de Entrevista Técnica Java + Revisão de Testes JUnit/MockMvc",
-            notes: "Praticar perguntas de transações (@Transactional), isolamento no banco e APIs REST.",
+            topic: "SimulaÃ§Ã£o de Entrevista TÃ©cnica Java + RevisÃ£o de Testes JUnit/MockMvc",
+            notes: "Praticar perguntas de transaÃ§Ãµes (@Transactional), isolamento no banco e APIs REST.",
             startTime: "2026-10-21T19:00:00", endTime: "2026-10-21T20:00:00", durationMinutes: 60,
             status: "CONFIRMED", totalAmount: 180.00, mentorAmount: 153.00, platformFee: 27.00,
             meetingLink: "https://meet.mentorflow.dev/sala-3-a8f91c2b", idempotencyKey: "seed-booking-003"
@@ -112,17 +112,17 @@ const demoStore = {
         {
             id: 2, mentorId: 2, mentorName: "Camila Rocha", mentorCompany: "Nubank",
             menteeId: 2, menteeName: "Mariana Costa",
-            topic: "System Design: Modelando Carteira Digital, Split de Pagamento e Ledger Imutável",
-            notes: "Entender como fintechs garantem consistência transacional sem perder centavos.",
+            topic: "System Design: Modelando Carteira Digital, Split de Pagamento e Ledger ImutÃ¡vel",
+            notes: "Entender como fintechs garantem consistÃªncia transacional sem perder centavos.",
             startTime: "2026-10-17T18:00:00", endTime: "2026-10-17T19:30:00", durationMinutes: 90,
             status: "COMPLETED", totalAmount: 360.00, mentorAmount: 306.00, platformFee: 54.00,
             meetingLink: "https://meet.mentorflow.dev/sala-2-7d3e901a", idempotencyKey: "seed-booking-002"
         },
         {
-            id: 1, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "Itaú Unibanco",
+            id: 1, mentorId: 1, mentorName: "Rafael Mendes", mentorCompany: "ItaÃº Unibanco",
             menteeId: 1, menteeName: "Gabriel Almeida",
-            topic: "Arquitetura Spring Boot, Prevenção de N+1 no JPA e Locks de Concorrência",
-            notes: "Revisar projeto de portfólio antes de enviar para vagas de Backend Júnior.",
+            topic: "Arquitetura Spring Boot, PrevenÃ§Ã£o de N+1 no JPA e Locks de ConcorrÃªncia",
+            notes: "Revisar projeto de portfÃ³lio antes de enviar para vagas de Backend JÃºnior.",
             startTime: "2026-10-16T19:00:00", endTime: "2026-10-16T20:00:00", durationMinutes: 60,
             status: "COMPLETED", totalAmount: 180.00, mentorAmount: 153.00, platformFee: 27.00,
             meetingLink: "https://meet.mentorflow.dev/sala-1-4c2b819e", idempotencyKey: "seed-booking-001"
@@ -210,9 +210,9 @@ function handleDemoRequest(method, url, body) {
                 status: 422,
                 data: {
                     type: "https://mentorflow.portfolio.dev/errors/business-rule-violation",
-                    title: "Violação de Regra de Negócio",
+                    title: "ViolaÃ§Ã£o de Regra de NegÃ³cio",
                     status: 422,
-                    detail: "A duração da mentoria deve ser de no mínimo 30 minutos e no máximo 180 minutos (3 horas).",
+                    detail: "A duraÃ§Ã£o da mentoria deve ser de no mÃ­nimo 30 minutos e no mÃ¡ximo 180 minutos (3 horas).",
                     instance: "/api/v1/bookings",
                     errorCode: "INVALID_SESSION_DURATION",
                     timestamp: nowIso
@@ -222,7 +222,7 @@ function handleDemoRequest(method, url, body) {
 
         const conflict = demoStore.bookings.find(b =>
             b.mentorId === Number(body.mentorId) &&
-            (b.status === 'PENDING_PAYMENT' || b.status === 'CONFIRMED') &&
+            b.status !== 'CANCELLED' &&
             new Date(b.startTime) < end &&
             new Date(b.endTime) > start
         );
@@ -235,7 +235,7 @@ function handleDemoRequest(method, url, body) {
                     type: "https://mentorflow.portfolio.dev/errors/schedule-conflict",
                     title: "Conflito de Agendamento Detectado (Double-Booking Prevention)",
                     status: 409,
-                    detail: `Conflito de agenda: o mentor ${conflict.mentorName} já possui a mentoria #${conflict.id} agendada no intervalo solicitado.`,
+                    detail: `Conflito de agenda: o mentor ${conflict.mentorName} jÃ¡ possui a mentoria #${conflict.id} agendada no intervalo solicitado.`,
                     instance: "/api/v1/bookings",
                     errorCode: "SCHEDULE_OVERLAP_CONFLICT",
                     conflictingBookingId: conflict.id,
@@ -246,7 +246,7 @@ function handleDemoRequest(method, url, body) {
 
         const mentor = demoStore.mentors.find(m => m.id === Number(body.mentorId));
         const mentee = demoStore.mentees.find(s => s.id === Number(body.menteeId));
-        const totalAmount = +(mentor.hourlyRate * (durationMinutes / 60)).toFixed(2);
+        const totalAmount = +((mentor.hourlyRate * durationMinutes) / 60).toFixed(2);
         const platformFee = +(totalAmount * 0.15).toFixed(2);
         const mentorAmount = +(totalAmount - platformFee).toFixed(2);
 
@@ -407,7 +407,7 @@ function renderMetrics() {
     document.getElementById('metricPlatformRev').textContent = formatCurrency(m.platformNetRevenue);
     document.getElementById('metricBookingsCount').textContent = m.totalBookings;
     document.getElementById('metricBookingsBreakdown').textContent =
-        `${m.confirmedBookings} confirmadas • ${m.completedBookings} concluídas • ${m.pendingBookings} pendentes • ${m.cancelledBookings} canceladas`;
+        `${m.confirmedBookings} confirmadas â€¢ ${m.completedBookings} concluÃ­das â€¢ ${m.pendingBookings} pendentes â€¢ ${m.cancelledBookings} canceladas`;
 }
 
 function renderMentees() {
@@ -447,11 +447,11 @@ function renderMentors() {
             </div>
             <div class="mentor-footer">
                 <div class="mentor-stats">
-                    <span>⭐ <strong>${Number(mentor.averageRating).toFixed(1)}</strong> (${mentor.totalReviews} avaliações) • ${mentor.totalSessionsCompleted} sessões</span>
+                    <span>â­ <strong>${Number(mentor.averageRating).toFixed(1)}</strong> (${mentor.totalReviews} avaliaÃ§Ãµes) â€¢ ${mentor.totalSessionsCompleted} sessÃµes</span>
                     <span>Carteira Mentor: <span class="mentor-wallet-pill">${formatCurrency(mentor.walletBalance)}</span></span>
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="openBookingForMentor(${mentor.id})">
-                    Agendar Horário
+                    Agendar HorÃ¡rio
                 </button>
             </div>
         </div>
@@ -465,7 +465,7 @@ function renderBookings() {
         if (b.status === 'PENDING_PAYMENT') {
             actionsHtml = `
                 <button class="btn btn-emerald btn-sm" onclick="confirmBookingPayment(${b.id})">
-                    💳 Confirmar & Split (85/15)
+                    ðŸ’³ Confirmar & Split (85/15)
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
                     Cancelar
@@ -474,19 +474,19 @@ function renderBookings() {
         } else if (b.status === 'CONFIRMED') {
             actionsHtml = `
                 <button class="btn btn-primary btn-sm" onclick="completeBooking(${b.id})">
-                    ✅ Concluir Mentoria
+                    âœ… Concluir Mentoria
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
-                    ↩️ Cancelar c/ Estorno
+                    â†©ï¸ Cancelar c/ Estorno
                 </button>
             `;
         } else if (b.status === 'COMPLETED') {
             actionsHtml = `
-                <span style="font-size:0.76rem;color:#34d399;font-weight:600;">✔ Finalizada</span>
+                <span style="font-size:0.76rem;color:#34d399;font-weight:600;">âœ” Finalizada</span>
             `;
         } else {
             actionsHtml = `
-                <span style="font-size:0.75rem;color:#9ca3af;">Horário liberado</span>
+                <span style="font-size:0.75rem;color:#9ca3af;">HorÃ¡rio liberado</span>
             `;
         }
 
@@ -500,7 +500,7 @@ function renderBookings() {
                 <td>${b.menteeName}</td>
                 <td style="max-width:250px;">
                     <div style="font-weight:500;">${b.topic}</div>
-                    ${b.meetingLink ? `<a href="${b.meetingLink}" target="_blank" style="font-size:0.73rem;color:#818cf8;">🔗 Sala de Vídeo</a>` : ''}
+                    ${b.meetingLink ? `<a href="${b.meetingLink}" target="_blank" style="font-size:0.73rem;color:#818cf8;">ðŸ”— Sala de VÃ­deo</a>` : ''}
                 </td>
                 <td class="mono" style="font-size:0.78rem;">
                     ${formatDateTime(b.startTime)}<br>
@@ -553,7 +553,7 @@ function populateModalSelects() {
 
     const currentMentor = mentorSelect.value;
     mentorSelect.innerHTML = state.mentors.map(m =>
-        `<option value="${m.id}">${m.name} (${m.company}) — ${formatCurrency(m.hourlyRate)}/h</option>`
+        `<option value="${m.id}">${m.name} (${m.company}) â€” ${formatCurrency(m.hourlyRate)}/h</option>`
     ).join('');
     if (currentMentor) mentorSelect.value = currentMentor;
 
@@ -574,7 +574,7 @@ async function completeBooking(bookingId) {
 
 async function cancelBooking(bookingId) {
     await apiRequest('POST', `/api/v1/bookings/${bookingId}/cancel`, {
-        reason: 'Cancelamento solicitado via painel de operações com estorno automático.'
+        reason: 'Cancelamento solicitado via painel de operaÃ§Ãµes com estorno automÃ¡tico.'
     });
     await refreshAll();
 }
@@ -592,14 +592,14 @@ function openBookingForMentor(mentorId) {
 document.getElementById('btnSimulateConflict').addEventListener('click', async () => {
     const activeBooking = state.bookings.find(b => b.status === 'CONFIRMED' || b.status === 'PENDING_PAYMENT');
     if (!activeBooking) {
-        alert('Crie um agendamento primeiro para simular conflito de horário.');
+        alert('Crie um agendamento primeiro para simular conflito de horÃ¡rio.');
         return;
     }
     await apiRequest('POST', '/api/v1/bookings', {
         mentorId: activeBooking.mentorId,
         menteeId: activeBooking.menteeId,
-        topic: 'Tentativa Concorrente no Mesmo Horário (Teste Double-Booking)',
-        notes: 'Disparo de teste para demonstrar bloqueio de sobreposição temporal (409 Conflict - RFC 7807).',
+        topic: 'Tentativa Concorrente no Mesmo HorÃ¡rio (Teste Double-Booking)',
+        notes: 'Disparo de teste para demonstrar bloqueio de sobreposiÃ§Ã£o temporal (409 Conflict - RFC 7807).',
         startTime: activeBooking.startTime,
         endTime: activeBooking.endTime
     });
@@ -614,8 +614,8 @@ document.getElementById('btnSimulateRuleError').addEventListener('click', async 
     await apiRequest('POST', '/api/v1/bookings', {
         mentorId: firstMentor.id,
         menteeId: firstMentee.id,
-        topic: 'Teste de Sessão com Duração Inválida (10 minutos)',
-        notes: 'Demonstração de validação de invariantes de domínio (422 Unprocessable Entity).',
+        topic: 'Teste de SessÃ£o com DuraÃ§Ã£o InvÃ¡lida (10 minutos)',
+        notes: 'DemonstraÃ§Ã£o de validaÃ§Ã£o de invariantes de domÃ­nio (422 Unprocessable Entity).',
         startTime: `${tomorrow}T15:00:00`,
         endTime: `${tomorrow}T15:10:00`
     });
@@ -662,3 +662,4 @@ const defaultDate = new Date(Date.now() + 5 * 86400000).toISOString().split('T')
 document.getElementById('formDate').value = defaultDate;
 
 refreshAll();
+

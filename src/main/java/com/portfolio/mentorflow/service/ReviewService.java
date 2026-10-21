@@ -9,6 +9,7 @@ import com.portfolio.mentorflow.dto.ReviewResponse;
 import com.portfolio.mentorflow.exception.BusinessRuleException;
 import com.portfolio.mentorflow.exception.ResourceNotFoundException;
 import com.portfolio.mentorflow.repository.BookingRepository;
+import com.portfolio.mentorflow.repository.MentorRepository;
 import com.portfolio.mentorflow.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,14 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final BookingRepository bookingRepository;
+    private final MentorRepository mentorRepository;
 
     public ReviewService(ReviewRepository reviewRepository,
-                         BookingRepository bookingRepository) {
+                         BookingRepository bookingRepository,
+                         MentorRepository mentorRepository) {
         this.reviewRepository = reviewRepository;
         this.bookingRepository = bookingRepository;
+        this.mentorRepository = mentorRepository;
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +41,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(ReviewCreateRequest request) {
-        Booking booking = bookingRepository.findByIdWithDetails(request.bookingId())
+        Booking booking = bookingRepository.findByIdWithLock(request.bookingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado com ID: " + request.bookingId()));
 
         if (booking.getStatus() != BookingStatus.COMPLETED) {
@@ -54,7 +58,9 @@ public class ReviewService {
             );
         }
 
-        Mentor mentor = booking.getMentor();
+        Mentor mentor = mentorRepository.findByIdWithLock(booking.getMentor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Mentor não encontrado."));
+
         Review review = new Review(
                 booking,
                 mentor,

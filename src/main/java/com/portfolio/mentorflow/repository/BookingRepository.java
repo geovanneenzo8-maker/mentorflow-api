@@ -2,7 +2,9 @@ package com.portfolio.mentorflow.repository;
 
 import com.portfolio.mentorflow.domain.entity.Booking;
 import com.portfolio.mentorflow.domain.enums.BookingStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,17 +16,37 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    Optional<Booking> findByIdempotencyKey(String idempotencyKey);
+    @Query("""
+        SELECT b FROM Booking b
+        JOIN FETCH b.mentor
+        JOIN FETCH b.mentee
+        WHERE b.idempotencyKey = :idempotencyKey
+        """)
+    Optional<Booking> findByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey);
+
+    /**
+     * Lock pessimista de escrita no agendamento para serializar transições concorrentes
+     * na máquina de estados (ex: duas chamadas simultâneas a confirmPayment ou cancelBooking).
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT b FROM Booking b
+        JOIN FETCH b.mentor
+        JOIN FETCH b.mentee
+        WHERE b.id = :id
+        """)
+    Optional<Booking> findByIdWithLock(@Param("id") Long id);
 
     /**
      * Detecta interseção temporal de intervalos [startTime, endTime) para o mesmo mentor.
      * Dois intervalos A e B se sobrepõem se e somente se: A.start < B.end AND A.end > B.start.
-     * Ignora agendamentos com status CANCELLED (que liberam o horário automaticamente).
+     * Considera todos os status que ocupam a janela (PENDING_PAYMENT, CONFIRMED e COMPLETED);
+     * apenas agendamentos CANCELLED liberam o horário.
      */
     @Query("""
         SELECT b FROM Booking b
         WHERE b.mentor.id = :mentorId
-          AND b.status IN :activeStatuses
+          AND b.status IN :occupiedStatuses
           AND b.startTime < :endTime
           AND b.endTime > :startTime
         """)
@@ -32,7 +54,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("mentorId") Long mentorId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime,
-            @Param("activeStatuses") List<BookingStatus> activeStatuses
+            @Param("occupiedStatuses") List<BookingStatus> occupiedStatuses
     );
 
     /**
