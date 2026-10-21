@@ -25,16 +25,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey);
 
     /**
-     * Lock pessimista de escrita no agendamento para serializar transições concorrentes
-     * na máquina de estados (ex: duas chamadas simultâneas a confirmPayment ou cancelBooking).
+     * Lock pessimista de escrita apenas na linha de Booking (sem JOIN FETCH) para que
+     * Mentee e Mentor não entrem precocemente no cache de 1º nível (L1 Cache) do Hibernate
+     * antes de seus próprios locks pessimistas (findByIdWithLock) serem adquiridos em ordem determinística.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-        SELECT b FROM Booking b
-        JOIN FETCH b.mentor
-        JOIN FETCH b.mentee
-        WHERE b.id = :id
-        """)
+    @Query("SELECT b FROM Booking b WHERE b.id = :id")
     Optional<Booking> findByIdWithLock(@Param("id") Long id);
 
     /**
