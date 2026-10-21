@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <header class="topbar">
@@ -20,15 +20,15 @@
                 </div>
             </div>
             <div class="topbar-actions">
-                <a href="/swagger-ui.html" target="_blank" class="btn btn-outline">
-                    <span>Swagger / OpenAPI</span>
+                <a href="https://github.com/geovanneenzo8-maker/mentorflow-api" target="_blank" class="btn btn-outline">
+                    <span>Código-Fonte no GitHub</span>
                 </a>
-                <a href="/actuator/health" target="_blank" class="btn btn-outline">
+                <a href="https://github.com/geovanneenzo8-maker/mentorflow-api/actions" target="_blank" class="btn btn-outline">
                     <span class="status-dot"></span>
-                    <span>Actuator Health</span>
+                    <span>CI PostgreSQL 16</span>
                 </a>
-                <a href="/h2-console" target="_blank" class="btn btn-outline">
-                    <span>H2 Database</span>
+                <a href="https://github.com/geovanneenzo8-maker/mentorflow-api#-engenharia-de-confiabilidade-cenários-de-falha-causas-e-testes-que-comprovam" target="_blank" class="btn btn-outline">
+                    <span>Arquitetura & Testes</span>
                 </a>
             </div>
         </div>
@@ -96,7 +96,7 @@
             <div class="section-header">
                 <div>
                     <h2>Carteiras de Mentorados (Alunos)</h2>
-                    <p>Saldos utilizados para pagamento atômico no momento da confirmação da reserva.</p>
+                    <p>Saldos protegidos por Lock Pessimista (<code>PESSIMISTIC_WRITE</code>) contra <em>Lost Update</em> em pagamentos simultâneos.</p>
                 </div>
             </div>
             <div class="mentees-row" id="menteesContainer"></div>
@@ -229,6 +229,6 @@
         </div>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="./app.js"></script>
 </body>
 </html>
